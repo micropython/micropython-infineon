@@ -99,7 +99,6 @@ float sqrtf(float x) {
 
 #endif
 
-#ifndef NDEBUG
 float copysignf(float x, float y) {
     float_s_t fx={.f = x};
     float_s_t fy={.f = y};
@@ -109,7 +108,6 @@ float copysignf(float x, float y) {
 
     return fx.f;
 }
-#endif
 
 // some compilers define log2f in terms of logf
 #ifdef log2f

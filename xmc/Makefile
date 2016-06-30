@@ -2,7 +2,6 @@ BUILD ?= build
 
 include ../py/mkenv.mk
 -include mpconfigport.mk
-CROSS = 1
 
 # qstr definitions (must come before including py.mk)
 QSTR_DEFS = qstrdefsport.h
@@ -10,26 +9,19 @@ QSTR_DEFS = qstrdefsport.h
 # include py core make definitions
 include ../py/py.mk
 
-CROSS_COMPILE = arm-none-eabi-
+CMSIS_DIR=Libraries/CMSIS
 
+CROSS_COMPILE = arm-none-eabi-
 
 INC += -I.
 INC += -I..
 INC += -I$(BUILD)
-
-INC += -I$(CMSIS_DIR)/inc
-INC += -I$(CMSIS_DIR)/devinc
-INC += -I$(HAL_DIR)/inc
-INC += -I$(USBDEV_DIR)/core/inc -I$(USBDEV_DIR)/class/inc
+INC += -I$(CMSIS_DIR)/Include
 INC += -I../lib/mp-readline
 INC += -I../stmhal
-INC += -I../lib/netutils
-INC += -I../lib/timeutils
 
-ifeq ($(CROSS), 1)
 CFLAGS_CORTEX_M4 = -mthumb -mtune=cortex-m4 -mabi=aapcs-linux -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fsingle-precision-constant -Wdouble-promotion
-CFLAGS = $(INC) -Wall -Werror -ansi -std=gnu99 -nostdlib $(CFLAGS_CORTEX_M4) $(COPT) -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -O0 -ffunction-sections -fdata-sections -MD -std=c99 -Wall -fms-extensions -DUC_ID=4503 -DXMC4700_F144x2048 -DARM_MATH_CM4 -g3 -fmessage-length=0 -I/home/schwabli/Documents/CMSIS/Include -I/home/schwabli/Documents/CMSIS/Infineon/Include -I/home/schwabli/Documents/CMSIS/Infineon/4700_series/Include
-endif
+CFLAGS = $(INC) -Wall -Werror -ansi -std=gnu99 -nostdlib $(CFLAGS_CORTEX_M4) $(COPT) -O0 -std=c99 -Wall -fms-extensions -DUC_ID=4503 -DXMC4700_F144x2048 -DARM_MATH_CM4 -g3 -fmessage-length=0
 
 OBJS  = $(SRC:.c=.o)
 OBJS += src/system_XMC4700.o
@@ -46,12 +38,7 @@ else
 COPT += -Os -DNDEBUG
 endif
 
-ifeq ($(CROSS), 1)
 LDFLAGS = -nostdlib -T xmc4700.ld -Map=$@.map --cref
-else
-LD = gcc
-LDFLAGS = -m32 -Wl,-Map=$@.map,--cref
-endif
 LIBS =
 
 SRC_C = \
@@ -114,18 +101,7 @@ $(BUILD)/firmware.elf: $(OBJ)
 	$(Q)$(LD) $(LDFLAGS) -o $@ $^ $(LIBS)
 	$(Q)$(SIZE) $@
 
-run:
-	stty raw opost -echo
-	build/firmware.elf
-	@echo Resetting terminal...
-# This sleep is useful to spot segfaults
-	sleep 1
-	reset
-
-test: $(BUILD)/firmware.elf
-	$(Q)/bin/echo -e "print('hello world!', list(x+1 for x in range(10)), end='eol\\\\n')\\r\\n\\x04" | $(BUILD)/firmware.elf | tail -n2 | grep "^hello world! \\[1, 2, 3, 4, 5, 6, 7, 8, 9, 10\\]eol"
-
-include ../py/mkrules.mk
-
 install: $(BUILD)/firmware.elf
 	$(CROSS_COMPILE)gdb $(BUILD)/firmware.elf -ex "target remote :2331" -ex "monitor reset" -ex "load" -ex "monitor reset" -ex "monitor go"
+
+include ../py/mkrules.mk

@@ -9,6 +9,16 @@
 #include "py/gc.h"
 #include "lib/utils/pyexec.h"
 
+#include "gccollect.h"
+#include "modnetwork.h"
+#include "readline.h"
+#include "storage.h"
+#include "lib/libm/fdlibm.h"
+#include <math.h>
+
+#include <Libraries/XMCLib/inc/xmc_gpio.h>
+#include <Libraries/XMCLib/inc/xmc_uart.h>
+
 void do_str(const char *src, mp_parse_input_kind_t input_kind) {
     mp_lexer_t *lex = mp_lexer_new_from_str_len(MP_QSTR__lt_stdin_gt_, src, strlen(src), 0);
     if (lex == NULL) {
@@ -31,8 +41,46 @@ void do_str(const char *src, mp_parse_input_kind_t input_kind) {
 
 static char *stack_top;
 static char heap[2048];
+#define LED1    P5_9
+#define LED2    P5_8
+#define UART_TX P2_14
+#define UART_RX P2_15
+
+XMC_GPIO_CONFIG_t uart_tx =
+{
+  .mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT2,
+  .output_strength = XMC_GPIO_OUTPUT_STRENGTH_MEDIUM
+};
+
+XMC_GPIO_CONFIG_t uart_rx =
+{
+  .mode = XMC_GPIO_MODE_INPUT_TRISTATE
+};
+
+XMC_GPIO_CONFIG_t led =
+{
+  .mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL,
+  .output_strength = XMC_GPIO_OUTPUT_STRENGTH_MEDIUM
+};
+
+XMC_UART_CH_CONFIG_t uart_config =
+{
+  .data_bits = 8U,
+  .stop_bits = 1U,
+  .baudrate = 115200U
+};
 
 int main(int argc, char **argv) {
+    XMC_UART_CH_Init(XMC_UART1_CH0, &uart_config);
+    XMC_UART_CH_SetInputSource(XMC_UART1_CH0, XMC_UART_CH_INPUT_RXD, USIC1_C0_DX0_P2_15);
+    XMC_UART_CH_Start(XMC_UART1_CH0);
+    XMC_GPIO_Init(UART_TX,&uart_tx);
+    XMC_GPIO_Init(UART_RX,&uart_rx);
+    XMC_GPIO_Init(LED1,&led);
+    XMC_GPIO_Init(LED2,&led);
+
+    XMC_GPIO_ToggleOutput(LED2);
+
     int stack_dummy;
     stack_top = (char*)&stack_dummy;
 
@@ -97,7 +145,7 @@ void MP_WEAK __assert_func(const char *file, int line, const char *func, const c
 #if MICROPY_MIN_USE_CORTEX_CPU
 
 // this is a minimal IRQ and reset framework for any Cortex-M CPU
-
+/*
 extern uint32_t _estack, _sidata, _sdata, _edata, _sbss, _ebss;
 
 void Reset_Handler(void) __attribute__((naked));
@@ -121,8 +169,8 @@ void Default_Handler(void) {
     for (;;) {
     }
 }
-
-uint32_t isr_vector[] __attribute__((section(".isr_vector"))) = {
+*/
+/*uint32_t isr_vector[] __attribute__((section(".isr_vector"))) = {
     (uint32_t)&_estack,
     (uint32_t)&Reset_Handler,
     (uint32_t)&Default_Handler, // NMI_Handler
@@ -140,7 +188,7 @@ uint32_t isr_vector[] __attribute__((section(".isr_vector"))) = {
     (uint32_t)&Default_Handler, // PendSV_Handler
     (uint32_t)&Default_Handler, // SysTick_Handler
 };
-
+*/
 void _start(void) {
     // when we get here: stack is initialised, bss is clear, data is copied
 

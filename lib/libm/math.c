@@ -90,7 +90,7 @@ double __aeabi_dmul(double x , double y) {
 #if defined(__thumb2__)
 
 float sqrtf(float x) {
-    asm volatile (
+    __asm__ volatile (
             "vsqrt.f32  %[r], %[x]\n"
             : [r] "=t" (x)
             : [x] "t"  (x));

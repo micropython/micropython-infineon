@@ -1,35 +1,21 @@
-# The minimal port
+# The XMC port
 
-This port is intended to be a minimal MicroPython port that actually runs.
-It can run under Linux (or similar) and on any STM32F4xx MCU (eg the pyboard).
+This is a MicroPython port that runs on the Infineon XMC4700 Relax Kit.
 
-## Building and running Linux version
-
-By default the port will be built for the host machine:
+## Building
 
     $ make
 
-To run a small test script do:
+## Starting J-Link GDB Server
 
-    $ make run
+For the On-Chip Debugger you will need to install the [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink). Connect USB cable to the debugger connection X101.
 
-## Building for an STM32 MCU
+To start:
 
-The Makefile has the ability to build for a Cortex-M CPU, and by default
-includes some start-up code for an STM32F4xx MCU and also enables a UART
-for communication.  To build:
+    $ JLinkGDBServer -Device XMC4700-2048 -if SWD
 
-    $ make CROSS=1
+## Running
 
-If you previously built the Linux version, you will need to first run
-`make clean` to get rid of incompatible object files.
+Once the J-Link GDB Server runs, you can load the code on the board and start the GDB session using:
 
-Building will produce the build/firmware.dfu file which can be programmed
-to an MCU using:
-
-    $ make CROSS=1 deploy
-
-This version of the build will work out-of-the-box on a pyboard (and
-anything similar), and will give you a MicroPython REPL on UART1 at 9600
-baud.  Pin PA13 will also be driven high, and this turns on the red LED on
-the pyboard.
+    $ make install

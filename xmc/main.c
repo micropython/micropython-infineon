@@ -14,8 +14,8 @@
 #include "readline.h"
 #include "storage.h"
 
-#include <Libraries/XMCLib/inc/xmc_gpio.h>
-#include <Libraries/XMCLib/inc/xmc_uart.h>
+#include <xmc_gpio.h>
+#include <xmc_uart.h>
 
 static char *stack_top;
 static char heap[16 * 1024];

@@ -43,7 +43,7 @@
  *
  */
 
-#include "Libraries/XMCLib/inc/xmc_common.h"
+#include "xmc_common.h"
 
 /*******************************************************************************
  * DATA STRUCTURES

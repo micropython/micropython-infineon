@@ -1,9 +1,9 @@
 #include <unistd.h>
 #include "py/mpconfig.h"
 
-#include <Libraries/XMCLib/inc/xmc_gpio.h>
-#include <Libraries/XMCLib/inc/xmc_uart.h>
-#include <Libraries/XMCLib/inc/xmc_common.h>
+#include <xmc_gpio.h>
+#include <xmc_uart.h>
+#include <xmc_common.h>
 /*
  * Core UART functions to implement for a port
  */

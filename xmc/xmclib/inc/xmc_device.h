@@ -1346,7 +1346,7 @@
 #define PERIPHERAL_RESET_SUPPORTED
 
 #elif UC_SERIES == XMC47
-#include "Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+#include "XMC4700.h"
 #define CLOCK_GATING_SUPPORTED
 #define PERIPHERAL_RESET_SUPPORTED
 #define USB_OTG_SUPPORTED

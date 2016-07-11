@@ -9,16 +9,16 @@ QSTR_DEFS = qstrdefsport.h
 # include py core make definitions
 include ../py/py.mk
 
-CMSIS_DIR=Libraries/CMSIS
-
 CROSS_COMPILE = arm-none-eabi-
 
 INC += -I.
 INC += -I..
 INC += -I$(BUILD)
-INC += -I$(CMSIS_DIR)/Include
 INC += -I../lib/mp-readline
 INC += -I../stmhal
+INC += -Ixmclib/inc
+INC += -Icmsis/Infineon/XMC4700_series/Include
+INC += -Icmsis/Include
 
 CFLAGS_CORTEX_M4 = -mthumb -mtune=cortex-m4 -mabi=aapcs-linux -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fsingle-precision-constant -Wdouble-promotion
 CFLAGS = $(INC) -Wall -Werror -ansi -std=gnu99 -nostdlib $(CFLAGS_CORTEX_M4) $(COPT) -O0 -std=c99 -Wall -fms-extensions -DUC_ID=4503 -DXMC4700_F144x2048 -DARM_MATH_CM4 -g3 -fmessage-length=0
@@ -43,6 +43,7 @@ LIBS =
 
 SRC_C = \
 	main.c \
+	system_XMC4700.c \
 	uart_core.c \
 	uart_extra.c \
         lib/timeutils/timeutils.c \
@@ -74,16 +75,15 @@ SRC_C = \
 	lib/libm/sf_erf.c \
 	lib/mp-readline/readline.c \
 	$(BUILD)/_frozen_mpy.c \
-	Libraries/XMCLib/src/xmc_common.c \
-	Libraries/XMCLib/src/xmc_gpio.c \
-	Libraries/XMCLib/src/xmc_uart.c \
-	Libraries/XMCLib/src/xmc_usic.c \
-	Libraries/XMCLib/src/xmc4_scu.c \
-	Libraries/XMCLib/src/xmc4_gpio.c \
-	Startup/system_XMC4700.c \
+	xmclib/src/xmc_common.c \
+	xmclib/src/xmc_gpio.c \
+	xmclib/src/xmc_uart.c \
+	xmclib/src/xmc_usic.c \
+	xmclib/src/xmc4_scu.c \
+	xmclib/src/xmc4_gpio.c \
 
 SRC_S = \
-	Startup/startup_XMC4700.S \
+	startup_XMC4700.S \
         stmhal/gchelper.S \
 
 OBJ = $(PY_O) $(addprefix $(BUILD)/, $(SRC_C:.c=.o) $(SRC_S:.S=.o))

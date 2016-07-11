@@ -63,8 +63,8 @@
  * HEADER FILES
  *******************************************************************************/
 
-#include "Libraries/XMCLib/inc/xmc_usic.h"
-#include "Libraries/XMCLib/inc/xmc_scu.h"
+#include "xmc_usic.h"
+#include "xmc_scu.h"
 
 /*******************************************************************************
  * MACROS

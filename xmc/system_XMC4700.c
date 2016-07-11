@@ -46,8 +46,8 @@
  *******************************************************************************/
 #include <string.h>
 
-#include <Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h>
-#include "Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+#include <XMC4700.h>
+#include "system_XMC4700.h"
 
 /*******************************************************************************
  * MACROS

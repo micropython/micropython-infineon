@@ -65,7 +65,7 @@
 /*********************************************************************************************************************
  * HEADER FILES
  ********************************************************************************************************************/
-#include <Libraries/XMCLib/inc/xmc_common.h>
+#include <xmc_common.h>
 
 /**
  * @addtogroup XMClib XMC Peripheral Library
@@ -191,9 +191,9 @@ typedef void (*XMC_SCU_INTERRUPT_EVENT_HANDLER_t)(void);
  ********************************************************************************************************************/
 
 #if (UC_FAMILY == XMC1)
-#include <Libraries/XMCLib/inc/xmc1_scu.h>
+#include <xmc1_scu.h>
 #elif (UC_FAMILY == XMC4)
-#include <Libraries/XMCLib/inc/xmc4_scu.h>
+#include <xmc4_scu.h>
 #else
 #error "Unspecified chipset"
 #endif

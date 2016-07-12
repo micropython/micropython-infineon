@@ -14,53 +14,49 @@
 #include "readline.h"
 #include "storage.h"
 
-#include <xmc_gpio.h>
-#include <xmc_uart.h>
+#include "VirtualSerial.h"
 
 static char *stack_top;
 static char heap[16 * 1024];
-#define LED1    P5_9
-#define LED2    P5_8
-#define UART_TX P2_14
-#define UART_RX P2_15
 
-XMC_GPIO_CONFIG_t uart_tx =
+/* Clock configuration */
+XMC_SCU_CLOCK_CONFIG_t clock_config =
 {
-  .mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT2,
-  .output_strength = XMC_GPIO_OUTPUT_STRENGTH_MEDIUM
+  .syspll_config.p_div = 2,
+  .syspll_config.n_div = 80,
+  .syspll_config.k_div = 4,
+  .syspll_config.mode = XMC_SCU_CLOCK_SYSPLL_MODE_NORMAL,
+  .syspll_config.clksrc = XMC_SCU_CLOCK_SYSPLLCLKSRC_OSCHP,
+  .enable_oschp = true,
+  .calibration_mode = XMC_SCU_CLOCK_FOFI_CALIBRATION_MODE_FACTORY,
+  .fsys_clksrc = XMC_SCU_CLOCK_SYSCLKSRC_PLL,
+  .fsys_clkdiv = 1,
+  .fcpu_clkdiv = 1,
+  .fccu_clkdiv = 1,
+  .fperipheral_clkdiv = 1
 };
 
-XMC_GPIO_CONFIG_t uart_rx =
-{
-  .mode = XMC_GPIO_MODE_INPUT_TRISTATE
-};
 
-XMC_GPIO_CONFIG_t led =
+void SystemCoreClockSetup(void)
 {
-  .mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL,
-  .output_strength = XMC_GPIO_OUTPUT_STRENGTH_MEDIUM
-};
+  /* Setup settings for USB clock */
+  XMC_SCU_CLOCK_Init(&clock_config);
 
-XMC_UART_CH_CONFIG_t uart_config =
-{
-  .data_bits = 8U,
-  .stop_bits = 1U,
-  .baudrate = 115200U
-};
+  XMC_SCU_CLOCK_EnableUsbPll();
+  XMC_SCU_CLOCK_StartUsbPll(2, 64);
+  XMC_SCU_CLOCK_SetUsbClockDivider(4);
+  XMC_SCU_CLOCK_SetUsbClockSource(XMC_SCU_CLOCK_USBCLKSRC_USBPLL);
+  XMC_SCU_CLOCK_EnableClock(XMC_SCU_CLOCK_USB);
+
+  SystemCoreClockUpdate();
+}
 
 int main(int argc, char **argv) {
-    XMC_UART_CH_Init(XMC_UART1_CH0, &uart_config);
-    XMC_UART_CH_SetInputSource(XMC_UART1_CH0, XMC_UART_CH_INPUT_RXD, USIC1_C0_DX0_P2_15);
-    XMC_UART_CH_Start(XMC_UART1_CH0);
-    XMC_GPIO_Init(UART_TX,&uart_tx);
-    XMC_GPIO_Init(UART_RX,&uart_rx);
-    XMC_GPIO_Init(LED1,&led);
-    XMC_GPIO_Init(LED2,&led);
-
-    XMC_GPIO_ToggleOutput(LED2);
 
     int stack_dummy;
     stack_top = (char*)&stack_dummy;
+
+    USB_Init();
 
 soft_reset:
 

@@ -19,6 +19,9 @@ INC += -I../stmhal
 INC += -Ixmclib/inc
 INC += -Icmsis/Infineon/XMC4700_series/Include
 INC += -Icmsis/Include
+INC += -Ilufa
+INC += -Ilufa/USB
+INC += -Ilufa/VirtualSerial
 
 CFLAGS_CORTEX_M4 = -mthumb -mtune=cortex-m4 -mabi=aapcs-linux -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fsingle-precision-constant -Wdouble-promotion
 CFLAGS = $(INC) -Wall -Werror -ansi -std=gnu99 -nostdlib $(CFLAGS_CORTEX_M4) $(COPT) -O0 -std=c99 -Wall -fms-extensions -DUC_ID=4503 -DXMC4700_F144x2048 -DARM_MATH_CM4 -g3 -fmessage-length=0
@@ -81,6 +84,18 @@ SRC_C = \
 	xmclib/src/xmc_usic.c \
 	xmclib/src/xmc4_scu.c \
 	xmclib/src/xmc4_gpio.c \
+	xmclib/src/xmc_usbd.c \
+	lufa/USB/Class/Device/CDCClassDevice.c \
+	lufa/USB/Common/memcpy.c \
+	lufa/USB/Core/ConfigDescriptors.c \
+	lufa/USB/Core/Events.c \
+	lufa/USB/Core/XMC4000/Endpoint_XMC4000.c \
+	lufa/USB/Core/XMC4000/USBController_XMC4000.c \
+	lufa/USB/Core/XMC4000/EndpointStream_XMC4000.c \
+	lufa/USB/Core/HostStandardReq.c \
+	lufa/USB/Core/USBTask.c \
+	lufa/VirtualSerial/VirtualSerial.c \
+	lufa/VirtualSerial/Descriptors.c \
 
 SRC_S = \
 	startup_XMC4700.S \
@@ -109,5 +124,8 @@ $(BUILD)/firmware.elf: $(OBJ)
 
 install: $(BUILD)/firmware.elf
 	$(CROSS_COMPILE)gdb $(BUILD)/firmware.elf -ex "target remote :2331" -ex "monitor reset" -ex "load" -ex "monitor reset" -ex "monitor go"
+
+debug: $(BUILD)/firmware.elf
+	$(CROSS_COMPILE)gdb $(BUILD)/firmware.elf -ex "target remote :2331" -ex "monitor reset" -ex "load" -ex "monitor reset" -ex "monitor go" -ex "layout asm" -ex "monitor reset" -ex "break main" -ex "until main"
 
 include ../py/mkrules.mk
